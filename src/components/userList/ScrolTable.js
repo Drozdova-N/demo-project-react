@@ -34,7 +34,7 @@ const useStyles = makeStyles({
 
 });
 
-export default function StickyHeadTable(props) {
+export default function ScrollTableUsers(props) {
     const classes = useStyles();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -47,7 +47,6 @@ export default function StickyHeadTable(props) {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
-   //  props.isOpenRow? classes.container.height = '300px': classes.container.height ='700px';
     return (
         <Paper className={classes.root}>
             <TableContainer className={props.isOpenRow? classes.container: classes.fullContainer}>

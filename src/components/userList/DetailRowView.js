@@ -3,8 +3,10 @@ import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
-import NativeSelect from '@material-ui/core/NativeSelect';
+import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
+
+
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -28,27 +30,43 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
+
 export default function DetailRow(props) {
     const classes = useStyles();
+    const [user, setUser] = React.useState(props.user);
 
-    const [state, setState] = React.useState({
-        role : undefined,
-        propsOld : props
-    });
-
-    function getRole() {
-        if(state.propsOld!== props){
-            setState({
-                role: props.user.role,
-                propsOld: props
-            })};
-        return state.role;
+    let updateUser = {
+        id : user.id,
+        login: user.login,
+        name: user.name,
+        role: user.role,
+        phone: user.phone
     };
-    const handleChange = event => {
-        setState({
-            role: event.target.value,
-            propsOld: props
-        });
+    React.useEffect( () => {
+        setUser(props.user);
+    }, [props]);
+
+    const handleChange = event =>{
+        switch (event.target.id) {
+            case "login":
+               updateUser.login = event.target.value;
+               setUser(updateUser);
+                break;
+            case "name":
+                updateUser.name = event.target.value;
+                setUser(updateUser);
+                break;
+            case "role":
+                updateUser.role = event.target.value;
+                setUser(updateUser);
+                break;
+            case "phone":
+                updateUser.phone = event.target.value;
+                setUser(updateUser);
+                break;
+            default : console.log("id component not found");
+            break;
+        }
     };
 
     return (
@@ -57,43 +75,51 @@ export default function DetailRow(props) {
                 <span aria-hidden="true">&times;</span>
             </button>
         <form className={classes.root} noValidate autoComplete="off">
+            {props.isErrorUpdate?<small style={{color:'#FF0115'}}>user is not updated</small>:null}
             <div>
                 <TextField
                     label="login"
                     id="login"
-                    value={props.user.login}
+                    value={user.login}
                     variant="outlined"
                     size="small"
+                    onChange={handleChange}
                 />
                 <TextField
                     label="name"
                     id="name"
-                    value={props.user.name}
+                    value={user.name}
                     variant="outlined"
                     size="small"
+                    onChange={handleChange}
                 />
             </div>
             <div>
-                <FormControl className={classes.formControl}>
-                    <InputLabel htmlFor="uncontrolled-native">Role</InputLabel>
-                    <NativeSelect
-                        value={getRole()}
-                        onChange={handleChange}
+                <FormControl className={classes.formControl} >
+                    <InputLabel htmlFor="uncontrolled-native" >Role</InputLabel>
+                    <Select
+                        className={classes.selectEmpty}
+                        style={{textAlign:'left'}}
+                        id="role"
                         name="role"
-                        className={classes.selectEmpty}>
+                        value={user.role}
+                        onChange={handleChange}
+                        inputProps={{ readOnly: true }}
+                    >
                         <option value="USER">USER</option>
                         <option value="ADMIN">ADMIN</option>
-                    </NativeSelect>
+                    </Select>
                 </FormControl>
                 <TextField
                     label="phone"
                     id="phone"
-                    value={props.user.phone}
+                    value={user.phone}
                     variant="outlined"
                     size="small"
+                    onChange={handleChange}
                 />
             </div>
-            <Button variant="outlined" color="primary">
+            <Button variant="outlined" color="primary" onClick={props.onUpdateUser.bind(null, user)}>
                 Update
             </Button>
         </form>
