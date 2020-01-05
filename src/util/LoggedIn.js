@@ -2,7 +2,7 @@
 class LoggedIn {
 
     static deleteCookie(name) {
-        document.cookie =name+"=; max-age=0";
+        document.cookie = name+ "=; max-age=0";
     }
 
    static  getCookie(name) {

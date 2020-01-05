@@ -2,7 +2,6 @@ import React from 'react';
 import SignInForm from "../components/forms/SignInForm";
 class SignIn extends  React.Component {
 
-
     constructor(props) {
         super(props);
         this.state = {
@@ -25,13 +24,13 @@ class SignIn extends  React.Component {
         })
             .then(res => res.ok?res.json():this.setState({isError:true}))
             .then(token=> {
-                if(token!==null) {document.cookie = "Auth-token="+token.value;
-               window.location.href="/home";
+                if(token!==null) {document.cookie = "Auth-token="+token.value+"; expires=Tue, 5 Jan 2021 00:00:00 GMT";
+                window.location.href="/home";
+                console.log(token)
                 }
             })
             .catch(error => console.error(error));
     };
-
     render() {
         return  (
           <SignInForm

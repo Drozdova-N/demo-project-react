@@ -22,10 +22,11 @@ class HomePage extends Component{
             row: null,
             isOpenRow: false,
             token:LoggedIn.getCookie("Auth-token"),
-            isErrorUpdate: false
+            isErrorUpdate: false,
+            authorizedUser: null
         };
         this._isMounted = false;
-    };
+    }
     onSort = (sortField)=> {
         const cloneData = this.state.users.concat();
         const sortType = this.state.sort === 'asc' ? 'desc': 'asc';
@@ -36,27 +37,21 @@ class HomePage extends Component{
             sort: sortType,
             sortField: sortField
         })
-    };
+    }
 
     onRowSelect= (item) => {
         this.setState({row: item, isOpenRow: true})
-    };
+    }
 
     onCloseSelectRow = () =>{
         this.setState({row: null, isOpenRow: false })
-    };
+    }
 
     async componentDidMount() {
         this._isMounted = true;
-        const url = '/api/users';
-        const headers = new Headers({
-            'authentication': this.state.token
-        });
-        const options = {
-            headers,
-            credentials: "include"
-        };
-        await fetch(url, options)
+        await fetch('api/users', {
+            headers: {'authentication': this.state.token}
+        })
             .then(res => res.json())
             .then(users => {
                 if (this._isMounted){
@@ -66,7 +61,9 @@ class HomePage extends Component{
                     });
                 }
             });
-    };
+
+        this.getAuthorizedUser();
+    }
 
     componentWillUnmount() {
         this._isMounted = false;
@@ -80,9 +77,21 @@ class HomePage extends Component{
             .catch(error => console.error(error));
         LoggedIn.deleteCookie("Auth-token");
         window.location.href='/signIn';
-    };
+    }
 
-    onUpdateUser= async (updateUser) => {
+    async getAuthorizedUser() {
+        await fetch('api/users/authorized-user', {
+            headers: {'authentication': this.state.token}
+        })
+            .then(response => response.json())
+            .then(user=>{
+                this.setState({authorizedUser:user})
+            })
+            .catch(error => console.error(error));
+    }
+    onUpdateUser = async (updateUser) => {
+       await this.onUpdateRoleUser(updateUser.id, updateUser.role);
+
         let user = {
             login: updateUser.login,
             name: updateUser.name,
@@ -94,13 +103,14 @@ class HomePage extends Component{
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8',
-                // 'authentication': this.state.token
+                'authentication': this.state.token
             },
-            body:JSON.stringify(user)
+            body: JSON.stringify(user)
         })
-            .then(res => res.ok?res.json():this.setState({isErrorUpdate:true}))
+            .then(res => res.ok ? res.json() : this.setState({isErrorUpdate: true}))
             .then(user => {
-                if (user !== undefined){
+                if (user !== undefined) {
+
                     this.setState(state => ({
                         users: state.users.map(element => element.id === user.id ? {...user} : element)
                     }));
@@ -110,8 +120,24 @@ class HomePage extends Component{
             })
             .catch(error => console.error(error));
 
+    }
 
-    };
+     async onUpdateRoleUser(id, role) {
+         let url = "/api/users/" + id + "/update-role";
+         let roleUser = {
+             role: role,
+         };
+         await fetch(url, {
+             method: 'PUT',
+             headers: {
+                 'Content-Type': 'application/json;charset=utf-8',
+                 'authentication': this.state.token
+             },
+             body: JSON.stringify(roleUser)
+         })
+             .then(res =>res.json())
+             .catch(error => console.log(error));
+     }
 
     render() {
         return (
@@ -135,6 +161,7 @@ class HomePage extends Component{
                         onCloseSelectRow={this.onCloseSelectRow}
                         onUpdateUser={this.onUpdateUser}
                         isErrorUpdate={this.state.isErrorUpdate}
+                        userRole = {this.state.authorizedUser.role}
                     /> : null
                 }
             </div>

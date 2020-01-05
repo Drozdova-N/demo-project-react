@@ -3,10 +3,8 @@ import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+import NativeSelect from '@material-ui/core/NativeSelect';
 import Button from '@material-ui/core/Button';
-
-
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -29,8 +27,6 @@ const useStyles = makeStyles(theme => ({
         marginTop: theme.spacing(2),
     },
 }));
-
-
 export default function DetailRow(props) {
     const classes = useStyles();
     const [user, setUser] = React.useState(props.user);
@@ -84,6 +80,7 @@ export default function DetailRow(props) {
                     variant="outlined"
                     size="small"
                     onChange={handleChange}
+                    InputProps={props.userRole==='ADMIN'? {readOnly: false}:{readOnly: true}}
                 />
                 <TextField
                     label="name"
@@ -92,23 +89,21 @@ export default function DetailRow(props) {
                     variant="outlined"
                     size="small"
                     onChange={handleChange}
+                    InputProps={props.userRole==='ADMIN'? {readOnly: false}:{readOnly: true}}
                 />
             </div>
             <div>
-                <FormControl className={classes.formControl} >
-                    <InputLabel htmlFor="uncontrolled-native" >Role</InputLabel>
-                    <Select
-                        className={classes.selectEmpty}
-                        style={{textAlign:'left'}}
+                <FormControl className={classes.formControl}>
+                    <InputLabel htmlFor="uncontrolled-native">Role</InputLabel>
+                    <NativeSelect
                         id="role"
                         name="role"
                         value={user.role}
-                        onChange={handleChange}
-                        inputProps={{ readOnly: true }}
-                    >
+                        onChange={props.userRole==='ADMIN'?handleChange:null}
+                        className={classes.selectEmpty}>
                         <option value="USER">USER</option>
                         <option value="ADMIN">ADMIN</option>
-                    </Select>
+                    </NativeSelect>
                 </FormControl>
                 <TextField
                     label="phone"
@@ -117,11 +112,15 @@ export default function DetailRow(props) {
                     variant="outlined"
                     size="small"
                     onChange={handleChange}
+                    InputProps={props.userRole==='ADMIN'? {readOnly: false}:{readOnly: true}}
                 />
             </div>
-            <Button variant="outlined" color="primary" onClick={props.onUpdateUser.bind(null, user)}>
-                Update
+            {props.userRole==='ADMIN'?
+                <Button variant="outlined" color="primary" onClick={props.onUpdateUser.bind(null, user)}>
+                    Update
             </Button>
+                :null
+            }
         </form>
         </div>
     );
